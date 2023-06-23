@@ -19,4 +19,5 @@ class Balance(Base):
 
     id = Column(Integer, primary_key=True)
     account_balance = Column(Float)
+    month = Column(Integer)
     updated_at = Column(DateTime)
