@@ -4,9 +4,11 @@ from db.queries import create_transaction
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
+from utils.title import print_money_minder
 import os
 
 load_dotenv()  
+
 
 host = os.getenv('DB_HOST')
 user = os.getenv('DB_USER')
@@ -23,10 +25,14 @@ while True:
     print("[2] Add an expense")
     print("[3] Add a refund")
     print("[4] Update status")
+    print("[5] View current month's balance")
+    print("[6] View balance history for a specific month")
+    print("[7] View current month's expenses")
+    print("[8] View expenses for a specific month")
     print("[0] Quit")
 
 
-    choice = input("I choose number  ")
+    choice = input("Please, select a number:  ")
 
     if choice == "1":
         # check balance logic
@@ -65,10 +71,22 @@ while True:
     elif choice == "4":
         # update status logic
         pass
+    elif choice == "5":
+        # View current month's balance
+        pass
+    elif choice == "6":
+        # View balance history for a specific month
+        pass
+    elif choice == "7":
+        # View current month's expenses
+        pass
+    elif choice == "8":
+        # View expenses for a specific month
+        pass
     elif choice == "0":
-        # end console logic
+        db_engine.dispose()
         break
     else:
         print("Invalid choices. Please try again.")
 
-db_connection.close()
+db_engine.dispose()
