@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from db.connection import create_db_engine
 from db.models import Base
 import os
 
@@ -10,3 +11,4 @@ password = os.getenv('DB_PASSWORD')
 database = os.getenv('DB_DATABASE')
 
 db_engine = create_db_engine(host, user, password, database)
+Base.metadata.create_all(db_engine)
