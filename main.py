@@ -120,11 +120,15 @@ try:
             # View expenses for a specific month
             pass
         elif choice == "8":
+            most_recent_balance_update = get_most_recent_balance_update(db_engine)
+            print(f"{Fore.RED}WARNING. You are going to manually change your balance, we do not recommand this way as it may be not accurate.{Style.RESET_ALL}")
+            print(f"The current balance of the account is {most_recent_balance_update.account_balance}€")
+            print()
             transaction_data = {
-                "account_balance": float(input("Your balance : ")),
+                "account_balance": float(input("What is your new balance? ")),
             }
             create_balance(db_engine, transaction_data)
-            print("➪ The balance has been successfully updated.")
+            print(f"{Fore.GREEN}➪ The balance has been successfully updated.{Style.RESET_ALL}")
         elif choice == "0":
             db_engine.dispose()
             break
