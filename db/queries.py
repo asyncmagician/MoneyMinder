@@ -38,10 +38,23 @@ def update_transaction_status(db_engine, transaction_id, transaction_type):
             new_status = not transaction.is_debited  
             connection.execute(text("UPDATE transactions SET is_debited = :new_status WHERE id = :transaction_id"), 
                                {"transaction_id": transaction_id, "new_status": new_status})
+            if new_status:
+                connection.execute(text("UPDATE balance SET account_balance = account_balance - :amount WHERE month = :month"), 
+                                   {"amount": transaction.amount, "month": datetime.now().month})
+            else:
+                connection.execute(text("UPDATE balance SET account_balance = account_balance + :amount WHERE month = :month"), 
+                                   {"amount": transaction.amount, "month": datetime.now().month})
         else:
             new_status = not transaction.is_credited  
             connection.execute(text("UPDATE transactions SET is_credited = :new_status WHERE id = :transaction_id"), 
                                {"transaction_id": transaction_id, "new_status": new_status})
+            if new_status:
+                connection.execute(text("UPDATE balance SET account_balance = account_balance + :amount WHERE month = :month"), 
+                                   {"amount": transaction.amount, "month": datetime.now().month})
+            else:
+                connection.execute(text("UPDATE balance SET account_balance = account_balance - :amount WHERE month = :month"), 
+                                   {"amount": transaction.amount, "month": datetime.now().month})
+        
         connection.commit()
 
 def get_most_recent_balance_update(db_connection):
