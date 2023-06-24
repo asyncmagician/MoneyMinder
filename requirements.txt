@@ -1,3 +1,4 @@
 mysql-connector-python==8.0.33
 python-dotenv==1.0.0
 SQLAlchemy==2.0.16
+pyinstaller==5.12.0
