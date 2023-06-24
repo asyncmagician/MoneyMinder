@@ -13,6 +13,16 @@ def get_all_transactions(db_connection):
 
     return transactions
 
+def get_expenses_for_month(session, month, year):
+    expenses = session.query(Transaction).filter(
+        extract('month', Transaction.transaction_date) == month,
+        extract('year', Transaction.transaction_date) == year,
+        Transaction.type == "D"
+    ).all()
+
+    return expenses
+
+
 def get_history_balance_updates(session, month, year):
     history_balance_updates = session.query(Balance).filter(
         extract('month', Balance.updated_at) == month,

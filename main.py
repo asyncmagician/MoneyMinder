@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from db.connection import create_db_engine
-from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates
+from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates, get_expenses_for_month
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
@@ -161,8 +161,25 @@ try:
             else:
                 print(f"\n{Fore.RED}No transactions found for the current month.{Style.RESET_ALL}")
         elif choice == "7":
-            # View expenses for a specific month
-            pass
+            month = int(input("Which month? (1-12) "))
+            year = int(input("Which year? (1990-2099) "))
+
+            session = Session()
+
+            expenses = get_expenses_for_month(session, month, year)
+
+            session.close()
+
+            if expenses:
+                print(f"\nExpenses for {month}/{year}:")
+                for expense in expenses:
+                    formatted_date = expense.transaction_date.strftime("%d/%m/%Y at %I:%M%p")
+                    amount = expense.amount
+                    description = expense.description
+
+                    print(f"- {formatted_date}: {description} {Fore.BLUE}({amount}€){Style.RESET_ALL}")
+            else:
+                print(f"\n{Fore.RED}No expenses found for {month}/{year}.{Style.RESET_ALL}")
         elif choice == "8":
             most_recent_balance_update = get_most_recent_balance_update(db_engine)
             print(f"{Fore.RED}WARNING. You are going to manually change your balance, we do not recommand this way as it may be not accurate.{Style.RESET_ALL}")
