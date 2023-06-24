@@ -1,11 +1,12 @@
 from dotenv import load_dotenv
 from db.connection import create_db_engine
-from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status
+from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
 from utils.title import print_money_minder
 from colorama import Fore, Style
+from sqlalchemy.orm import sessionmaker
 import os
 
 load_dotenv()  
@@ -18,6 +19,7 @@ database = os.getenv('DB_DATABASE')
 
 db_engine = create_db_engine(host, user, password, database)
 Base.metadata.create_all(db_engine)
+Session = sessionmaker(bind=db_engine)
 
 try:
     while True:
@@ -111,8 +113,33 @@ try:
                 print()
                 print(f"{Fore.RED}➪ No transactions found for the current month.{Style.RESET_ALL}")
         elif choice == "5":
-            # View balance history for a specific month
-            pass
+                    month = int(input("Which month? (1-12) "))
+                    year = int(input("Which year? (1990-2099) "))
+
+                    session = Session() 
+
+                    history_balance_updates = get_history_balance_updates(session, month, year)
+
+                    session.close()
+
+                    if history_balance_updates:
+                        print(f"\nBalance history for {month}/{year}:")
+                        for balance_update in history_balance_updates:
+                            formatted_date = balance_update.updated_at.strftime("%d/%m/%Y at %I:%M%p")
+                            balance = balance_update.account_balance
+
+                            color = Style.RESET_ALL
+
+                            if balance < 0:
+                                color = Fore.RED
+                            elif 0 <= balance < 500:
+                                color = Fore.YELLOW
+                            elif balance > 500:
+                                color = Fore.GREEN
+
+                            print(f"- {formatted_date}: {color}{balance}€{Style.RESET_ALL}")
+                    else:
+                        print(f"\n{Fore.RED}No balance history found for {month}/{year}.{Style.RESET_ALL}")
         elif choice == "6":
             transactions = get_current_month_transactions(db_engine)
             if transactions:

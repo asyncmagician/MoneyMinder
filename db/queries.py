@@ -1,7 +1,7 @@
 from db.models import Transaction, Balance
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import extract, desc, func, text
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def get_all_transactions(db_connection):
     Session = sessionmaker(bind=db_connection)
@@ -13,9 +13,13 @@ def get_all_transactions(db_connection):
 
     return transactions
 
-from datetime import datetime, timedelta
+def get_history_balance_updates(session, month, year):
+    history_balance_updates = session.query(Balance).filter(
+        extract('month', Balance.updated_at) == month,
+        extract('year', Balance.updated_at) == year
+    ).order_by(desc(Balance.updated_at)).all()
 
-from sqlalchemy import text
+    return history_balance_updates
 
 def get_current_month_transactions(db_engine):
     today = datetime.today()
