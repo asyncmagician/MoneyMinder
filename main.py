@@ -114,8 +114,25 @@ try:
             # View balance history for a specific month
             pass
         elif choice == "6":
-            # View current month's expenses
-            pass
+            transactions = get_current_month_transactions(db_engine)
+            if transactions:
+                total_amount = 0
+                credited_amount = 0
+                for transaction in transactions:
+                    if transaction.type == "D":
+                        total_amount += transaction.amount
+                        if transaction.is_debited:
+                            credited_amount += transaction.amount
+                
+                not_credited_amount = total_amount - credited_amount
+                
+                print(f"\nThis month, you have spent {Fore.BLUE}{total_amount}€{Style.RESET_ALL}.")
+                if credited_amount > 0:
+                    print(f"WARNING... {Fore.YELLOW}{credited_amount}€{Style.RESET_ALL} has been credited\nYou should be credited of {Fore.RED}{not_credited_amount}€{Style.RESET_ALL} soon.")
+                else:
+                    print(f"No amount has been credited yet.")
+            else:
+                print(f"\n{Fore.RED}No transactions found for the current month.{Style.RESET_ALL}")
         elif choice == "7":
             # View expenses for a specific month
             pass
