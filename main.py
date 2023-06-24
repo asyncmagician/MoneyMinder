@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from db.connection import create_db_engine
-from db.queries import create_transaction
+from db.queries import create_transaction, get_most_recent_balance_update, create_balance
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
@@ -25,18 +25,23 @@ while True:
     print("[2] Add an expense")
     print("[3] Add a refund")
     print("[4] Update status")
-    print("[5] View current month's balance")
-    print("[6] View balance history for a specific month")
-    print("[7] View current month's expenses")
-    print("[8] View expenses for a specific month")
+    print("[5] View balance history for a specific month")
+    print("[6] View current month's expenses")
+    print("[7] View expenses for a specific month")
+    print("[8] Update balance")
     print("[0] Quit")
 
 
     choice = input("Please, select a number:  ")
 
     if choice == "1":
-        # check balance logic
-        pass
+        most_recent_balance_update = get_most_recent_balance_update(db_engine)
+        if most_recent_balance_update:
+            formatted_date = most_recent_balance_update.updated_at.strftime("%d/%m/%Y at %I:%M %p")
+            print(f"The most recent balance update was on {formatted_date} "
+                f"and the balance was {most_recent_balance_update.account_balance}€")
+        else:
+            print("No balance updates found for the current month.")
     elif choice == "2":
         transaction_data = {
             "transaction_date": datetime.now(),
@@ -72,17 +77,20 @@ while True:
         # update status logic
         pass
     elif choice == "5":
-        # View current month's balance
-        pass
-    elif choice == "6":
         # View balance history for a specific month
         pass
-    elif choice == "7":
+    elif choice == "6":
         # View current month's expenses
         pass
-    elif choice == "8":
+    elif choice == "7":
         # View expenses for a specific month
         pass
+    elif choice == "8":
+        transaction_data = {
+            "account_balance": float(input("Your balance : ")),
+        }
+        create_balance(db_engine, transaction_data)
+        print("The balance has been successfully updated.")
     elif choice == "0":
         db_engine.dispose()
         break
