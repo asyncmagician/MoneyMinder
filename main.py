@@ -194,7 +194,7 @@ try:
             db_engine.dispose()
             break
         else:
-            print("➪ Invalid choices. Please try again.")
+            print(f"{Fore.RED}➪ Invalid choices. Please try again.{Style.RESET_ALL}")
 except KeyboardInterrupt:
     print(f"{Fore.RED}\nProgram interrupted by user. Exiting...")
 finally:
