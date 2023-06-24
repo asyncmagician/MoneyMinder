@@ -56,12 +56,12 @@ try:
                 print(f"➪ The most recent balance update was on {formatted_date} "
                     f"and the balance was {color}{balance}€{Style.RESET_ALL}")
             else:
-                print("➪ No balance updates found for the current month.")
+                print(f"{Fore.RED}➪ No balance updates found for the current month.{Style.RESET_ALL}")
         elif choice == "2":
             transaction_data = {
                 "transaction_date": datetime.now(),
-                "description": input("Description : "),
-                "amount": float(input("Montant : ")),
+                "description": input("What is the description?  "),
+                "amount": float(input("What is the amount? ")),
                 "type": "D",
                 "is_debited": False,
                 "is_credited": False,
@@ -69,15 +69,15 @@ try:
 
             if validate_input(transaction_data):
                 create_transaction(db_engine, transaction_data)
-                print("➪ The expense has been successfully added.")
+                print(f"{Fore.GREEN}➪ The expense has been successfully added.{Style.RESET_ALL}")
             else:
-                print("➪ Invalid input. Please try again.")
+                print(f"{Fore.RED}➪ Invalid input. Please try again.{Style.RESET_ALL}")
             
         elif choice == "3":
             transaction_data = {
                 "transaction_date": datetime.now(),
-                "description": input("Description : "),
-                "amount": float(input("Montant : ")),
+                "description": input("What is the description? "),
+                "amount": float(input("What is the amount? ")),
                 "type": "R",
                 "is_debited": False,
                 "is_credited": False
@@ -85,9 +85,9 @@ try:
 
             if validate_input(transaction_data):
                 create_transaction(db_engine, transaction_data)
-                print("➪ The refund has been successfully added.")
+                print(f"{Fore.GREEN}➪ The refund has been successfully added.{Style.RESET_ALL}")
             else:
-                print("➪ Invalid input. Please try again.")
+                print(f"{Fore.RED}➪ Invalid input. Please try again.{Style.RESET_ALL}")
         elif choice == "4":
             transactions = get_current_month_transactions(db_engine)
             if transactions:
