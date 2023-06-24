@@ -112,6 +112,7 @@ try:
         else:
             print("➪ Invalid choices. Please try again.")
 except KeyboardInterrupt:
-    print("➪ \nProgram interrupted by user. Exiting...")
+    print(f"{Fore.RED}\nProgram interrupted by user. Exiting...")
 finally:
+    print(f"{Fore.MAGENTA}\nThanks for choosing MoneyMinder")
     db_engine.dispose()
