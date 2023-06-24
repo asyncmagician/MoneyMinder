@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from db.connection import create_db_engine
-from db.queries import create_transaction, get_most_recent_balance_update, create_balance
+from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
@@ -89,8 +89,27 @@ try:
             else:
                 print("➪ Invalid input. Please try again.")
         elif choice == "4":
-            # update status logic
-            pass
+            transactions = get_current_month_transactions(db_engine)
+            if transactions:
+                for transaction in transactions:
+                    type : str = "None"
+                    if(transaction.type == "D"):
+                        type: str = "This is an expense"
+                    elif(transaction.type == "R"):
+                        type: str = "This is a refund"
+                    print()
+                    print(f"The identifier is {Fore.YELLOW}{transaction.id}{Style.RESET_ALL} \nThe description is '{transaction.description}' \nThe amount is {Fore.YELLOW}{transaction.amount}€{Style.RESET_ALL} \n{type}")
+                    print()
+                transaction_id = int(input("Please, enter the ID of the transaction you want to update: "))
+                for transaction in transactions:
+                    if transaction.id == transaction_id:
+                        transaction_type = transaction.type
+                update_transaction_status(db_engine, transaction_id, transaction_type)
+                print()
+                print(f"{Fore.GREEN}➪ The transaction status has been successfully updated.{Style.RESET_ALL}")
+            else:
+                print()
+                print(f"{Fore.RED}➪ No transactions found for the current month.{Style.RESET_ALL}")
         elif choice == "5":
             # View balance history for a specific month
             pass

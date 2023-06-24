@@ -1,6 +1,6 @@
 from db.models import Transaction, Balance
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import extract, desc, func
+from sqlalchemy import extract, desc, func, text
 from datetime import datetime
 
 def get_all_transactions(db_connection):
@@ -13,11 +13,42 @@ def get_all_transactions(db_connection):
 
     return transactions
 
+from datetime import datetime, timedelta
+
+from sqlalchemy import text
+
+def get_current_month_transactions(db_engine):
+    today = datetime.today()
+    start_date = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    if today.month == 12:
+        end_date = today.replace(year=today.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    else:
+        end_date = today.replace(month=today.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    with db_engine.connect() as connection:
+        result = connection.execute(text("SELECT * FROM transactions WHERE transaction_date >= :start_date AND transaction_date < :end_date AND (is_debited = 0 OR is_credited = 0)"),
+                                    {"start_date": start_date, "end_date": end_date})
+        return result.fetchall()
+
+def update_transaction_status(db_engine, transaction_id, transaction_type):
+    with db_engine.connect() as connection:
+        transaction = connection.execute(text("SELECT * FROM transactions WHERE id = :transaction_id"),
+                                         {"transaction_id": transaction_id}).first()
+        if transaction_type == "D":
+            new_status = not transaction.is_debited  
+            connection.execute(text("UPDATE transactions SET is_debited = :new_status WHERE id = :transaction_id"), 
+                               {"transaction_id": transaction_id, "new_status": new_status})
+        else:
+            new_status = not transaction.is_credited  
+            connection.execute(text("UPDATE transactions SET is_credited = :new_status WHERE id = :transaction_id"), 
+                               {"transaction_id": transaction_id, "new_status": new_status})
+        connection.commit()
+
 def get_most_recent_balance_update(db_connection):
     Session = sessionmaker(bind=db_connection)
     session = Session()
 
-    current_month = extract('month', func.now())  # Get the current month
+    current_month = extract('month', func.now()) 
 
     most_recent_update = session.query(Balance).filter(
         Balance.month == current_month
