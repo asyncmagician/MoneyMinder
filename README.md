@@ -68,5 +68,16 @@ Make sure you have met the following prerequisites
     python3 main.py
     ```
 
+## License
+MoneyMinder is released under the Apache License 2.0. See `LICENSE` for more information.
+
+The Apache License 2.0 is a permissive open source license that allows you, as the owner of the project, to grant others the right to use, modify, distribute, and even sell the software while still maintaining your ownership rights. By choosing the Apache License 2.0, you are allowing others to freely use and contribute to the project while giving them the freedom to build upon it and create derivative works.
+
+To learn more about the Apache License 2.0, please visit http://www.apache.org/licenses/LICENSE-2.0.
+
 ## Contributing
-I welcome contributions from the community. If you find any issues or have feature suggestions, feel free to open an issue or submit a pull request on GitHub. The only requirement is that you need to sign your commits.
+I welcome contributions from the community. If you find any issues or have feature suggestions, feel free to open an issue or submit a pull request on GitHub. The 
+only requirement is that you need to sign your commits.
+
+## Contact
+If you have any questions or inquiries about the project, feel free to reach out to me on [Twitter](https://twitter.com/asyncmaster) 🐦
