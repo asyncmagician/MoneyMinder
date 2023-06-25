@@ -68,6 +68,9 @@ Make sure you have met the following prerequisites
     python3 main.py
     ```
 
+5. Start managing your budget and set goals to achieve it 🏦
+    ![MoneyMinder GUI](imgs/MoneyMinder.png)
+
 ## License
 MoneyMinder is released under the Apache License 2.0. See `LICENSE` for more information.
 
