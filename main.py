@@ -27,11 +27,12 @@ Session = sessionmaker(bind=db_engine)
 repo = git.Repo(search_parent_directories=True)
 tags = repo.tags
 
-if tags:
-    latest_tag = tags[-1]
+if tags and len(tags) >= 2:
+    latest_tag = tags[1]
     version = latest_tag.name
 else:
     version = "Unknown"
+
 
 current_year = datetime.now().year
 
