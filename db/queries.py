@@ -1,6 +1,6 @@
 from db.models import Transaction, Balance
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import extract, desc, func, text
+from sqlalchemy import extract, desc, func, text, select
 from datetime import datetime, timedelta
 
 def get_all_transactions(db_connection):
@@ -12,6 +12,14 @@ def get_all_transactions(db_connection):
     session.close()
 
     return transactions
+
+def check_balance_exists(db_engine):
+    connection = db_engine.connect()
+    result = connection.execute(select(func.count()).select_from(Balance))
+    row_count = result.scalar()
+    connection.close()
+    return row_count > 0
+
 
 def get_expenses_for_month(session, month, year):
     expenses = session.query(Transaction).filter(

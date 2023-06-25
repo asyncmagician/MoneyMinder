@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from db.connection import create_db_engine
-from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates, get_expenses_for_month
+from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates, get_expenses_for_month, check_balance_exists
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
@@ -20,6 +20,21 @@ database = os.getenv('DB_DATABASE')
 db_engine = create_db_engine(host, user, password, database)
 Base.metadata.create_all(db_engine)
 Session = sessionmaker(bind=db_engine)
+
+if not check_balance_exists(db_engine):
+    print("\n" + "#" * 50)
+    print(f"{Fore.CYAN}Welcome to MoneyMinder!{Style.RESET_ALL}")
+    print("#" * 50 + "\n")  
+    initial_balance = float(input("In order to start, please provide the current account balance: "))
+    balance_data = {
+        "account_balance": initial_balance,
+        "updated_at": datetime.now()
+    }
+    create_balance(db_engine, balance_data)
+else:
+    print("\n" + "#" * 50)
+    print(f"{Fore.CYAN}Welcome back to MoneyMinder!{Style.RESET_ALL}")
+    print("#" * 50 + "\n")  
 
 try:
     while True:
