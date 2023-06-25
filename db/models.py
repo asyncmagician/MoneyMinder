@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -33,3 +34,22 @@ class Goal(Base):
     wants = Column(Integer)
     saves = Column(Integer)
     updated_at = Column(DateTime)
+
+class Income(Base):
+    __tablename__ = 'income'
+
+    id = Column(Integer, primary_key=True)
+    month = Column(Integer)
+    year = Column(Integer)
+    amount = Column(Float)
+    updated_at = Column(DateTime)
+
+class FixedExpense(Base):
+    __tablename__ = 'fixed_expenses'
+
+    id = Column(Integer, primary_key=True)
+    description = Column(String(255))
+    amount = Column(Float)
+    income_id = Column(Integer, ForeignKey('income.id'))
+
+    income = relationship("Income", backref="fixed_expenses")

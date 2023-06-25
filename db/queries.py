@@ -1,4 +1,4 @@
-from db.models import Transaction, Balance, Goal
+from db.models import Transaction, Balance, Goal, Income, FixedExpense
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import extract, desc, func, text, select, delete, insert, and_
 from datetime import datetime, timedelta
@@ -173,29 +173,110 @@ def save_goals(db_engine, goals):
     session.close()
 
 
-
-
 def calculate_forecast(db_engine):
-    goals = get_goals(db_engine)
-    total_goal_amount = sum(goal['needs'] + goal['wants'] + goal['saves'] for goal in goals.values())
+    fixed_expenses = get_fixed_expenses(db_engine)
+    total_fixed_expenses = sum(expense.amount for expense in fixed_expenses)
 
-    transactions = get_current_month_transactions(db_engine)
+    current_month_transactions = get_current_month_transactions(db_engine)
+    current_month_expenses = sum(transaction.amount for transaction in current_month_transactions if transaction.type == "D")
 
-    forecast = {}
+    current_month = datetime.now().month
+    current_year = datetime.now().year
 
-    for category, goal_values in goals.items():
-        category_transactions = [t for t in transactions if t.category == category]
-        category_expenses = sum([t.amount for t in category_transactions if t.type == 'D'])
+    with db_engine.connect() as connection:
+        result = connection.execute(select(Income.amount).filter(Income.month == current_month, Income.year == current_year))
+        income = result.scalar()
+    if income:
+        forecast_balance = income - total_fixed_expenses - current_month_expenses
+    else:
+        forecast_balance = 0
 
-        forecast_amount = {
-            'needs': goal_values['needs'] - category_expenses,
-            'wants': goal_values['wants'] - category_expenses,
-            'saves': goal_values['saves'] - category_expenses
-        }
-
-        forecast[category] = forecast_amount
+    forecast = {
+        "total_fixed_expenses": total_fixed_expenses,
+        "current_month_expenses": current_month_expenses,
+        "income": income,
+        "forecast_balance": forecast_balance
+    }
 
     return forecast
+
+def create_income(db_connection, income_amount):
+    Session = sessionmaker(bind=db_connection)
+    session = Session()
+
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    new_income = Income(
+        month=current_month,
+        year=current_year,
+        amount=income_amount,
+        updated_at=datetime.now()
+    )
+
+    session.add(new_income)
+    session.commit()
+    session.close()
+
+def get_fixed_expenses(db_engine):
+    Session = sessionmaker(bind=db_engine)
+    session = Session()
+
+    fixed_expenses = session.query(FixedExpense).all()
+
+    session.close()
+
+    return fixed_expenses
+
+def get_current_month_income(db_engine):
+    with db_engine.connect() as connection:
+        result = connection.execute(text("SELECT * FROM income WHERE month = :month AND year = :year"),
+                                    {"month": datetime.now().month, "year": datetime.now().year})
+        return result.fetchone()
+
+def add_fixed_expenses(db_engine):
+    current_month_income = get_current_month_income(db_engine)
+    
+    if current_month_income is None:
+        return None
+    
+    fixed_expenses = []
+    
+    while True:
+        description = input("Enter the description of the fixed expense: ")
+        amount = float(input("Enter the amount of the fixed expense: "))
+        
+        fixed_expenses.append({
+            "description": description,
+            "amount": amount
+        })
+        
+        another_expense = input("Do you want to add another fixed expense? (y/N) ")
+        
+        if another_expense.lower() != "y":
+            break
+    
+    for expense in fixed_expenses:
+        create_fixed_expense(db_engine, current_month_income.id, expense["description"], expense["amount"])
+    
+    return True
+
+
+def create_fixed_expense(db_connection, income_id, description, amount):
+    Session = sessionmaker(bind=db_connection)
+    session = Session()
+
+    new_fixed_expense = FixedExpense(
+        description=description,
+        amount=amount,
+        income_id=income_id
+    )
+
+    session.add(new_fixed_expense)
+    session.commit()
+    session.close()
+
+
 
 # Developer Mode
 

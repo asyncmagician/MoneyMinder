@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from db.connection import create_db_engine
-from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates, get_expenses_for_month, check_balance_exists, delete_all_data, get_goals, calculate_forecast, save_goals
+from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates, get_expenses_for_month, check_balance_exists, delete_all_data, get_goals, calculate_forecast, save_goals, create_income, add_fixed_expenses
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
@@ -77,6 +77,9 @@ try:
             print("[7] View expenses for a specific month")
             print("[8] Update balance")
             print("[9] See goals")
+            print("[10] Add income")
+            print("[11] View forecast")
+            print("[12] Add fixed expenses")
             print(f"{Fore.RED}[devmode] Enable Developer Mode{Style.RESET_ALL}")
         
         print("[0] Quit")
@@ -215,7 +218,7 @@ try:
                     
                     print(f"\nThis month, you have spent {Fore.BLUE}{total_amount}€{Style.RESET_ALL}.")
                     if credited_amount > 0:
-                        print(f"WARNING... {Fore.YELLOW}{credited_amount}€{Style.RESET_ALL} has been credited\nYou should be credited of {Fore.RED}{not_credited_amount}€{Style.RESET_ALL} soon.")
+                        print(f"{Fore.YELLOW}{credited_amount}€{Style.RESET_ALL} have been credited\nYou should be credited of {Fore.RED}{not_credited_amount}€{Style.RESET_ALL} soon.")
                     else:
                         print(f"No amount has been credited yet.")
                 else:
@@ -283,6 +286,25 @@ try:
                 save_goals(db_engine, goals)
 
                 print(f"{Fore.GREEN}Goals have been set successfully.{Style.RESET_ALL}")
+            elif choice == "10":
+                income_amount = float(input("Enter your monthly income amount: "))
+                create_income(db_engine, income_amount)
+                print(f"{Fore.GREEN}➪ Your income has been successfully added.{Style.RESET_ALL}")
+            elif choice == "11":
+                forecast = calculate_forecast(db_engine)
+
+                print(f"\nForecast:")
+                print(f"Income: {forecast['income']}€")
+                print(f"Total fixed expenses: {forecast['total_fixed_expenses']}€")
+                print(f"Forecast balance: {forecast['forecast_balance']}€")
+            elif choice == "12":
+                result = add_fixed_expenses(db_engine)
+                if result is None:
+                    print(f"{Fore.RED}No income found for the current month. Please add an income first.{Style.RESET_ALL}")
+                elif result:
+                    print(f"{Fore.GREEN}➪ Fixed expenses have been added successfully.{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}➪ Error occurred while adding fixed expenses.{Style.RESET_ALL}")
             elif choice == "0":
                 db_engine.dispose()
                 break
