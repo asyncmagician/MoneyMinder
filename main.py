@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from db.connection import create_db_engine
-from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates, get_expenses_for_month, check_balance_exists, delete_all_data
+from db.queries import create_transaction, get_most_recent_balance_update, create_balance, get_current_month_transactions, update_transaction_status, get_history_balance_updates, get_expenses_for_month, check_balance_exists, delete_all_data, get_goals, calculate_forecast, save_goals
 from db.models import Base
 from datetime import datetime
 from utils.helpers import validate_input
@@ -76,6 +76,7 @@ try:
             print("[6] View current month's expenses")
             print("[7] View expenses for a specific month")
             print("[8] Update balance")
+            print("[9] See goals")
             print(f"{Fore.RED}[devmode] Enable Developer Mode{Style.RESET_ALL}")
         
         print("[0] Quit")
@@ -249,6 +250,28 @@ try:
                 }
                 create_balance(db_engine, transaction_data)
                 print(f"{Fore.GREEN}➪ The balance has been successfully updated.{Style.RESET_ALL}")
+            elif choice == "9":
+                salary = float(input("What is your monthly salary? "))
+
+                goals = {}
+
+                percentage_needs = float(input("Enter the percentage goal for needs: "))
+                percentage_wants = float(input("Enter the percentage goal for wants: "))
+                percentage_saves = float(input("Enter the percentage goal for saves: "))
+
+                needs = salary * (percentage_needs / 100)
+                wants = salary * (percentage_wants / 100)
+                saves = salary * (percentage_saves / 100)
+
+                goals['default'] = {
+                    'needs': needs,
+                    'wants': wants,
+                    'saves': saves
+                }
+
+                save_goals(db_engine, goals)
+
+                print("Goals have been set successfully.")
             elif choice == "0":
                 db_engine.dispose()
                 break

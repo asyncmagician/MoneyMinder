@@ -1,6 +1,6 @@
-from db.models import Transaction, Balance
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import extract, desc, func, text, select, delete
+from db.models import Transaction, Balance, Goal
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy import extract, desc, func, text, select, delete, insert
 from datetime import datetime, timedelta
 
 def get_all_transactions(db_connection):
@@ -115,17 +115,83 @@ def create_balance(db_connection, balance_data):
     Session = sessionmaker(bind=db_connection)
     session = Session()
 
-    current_month = extract('month', func.now())  
+    current_month = datetime.now().month
 
     new_balance = Balance(
         account_balance=balance_data.get('account_balance', 0),
-        month=current_month, 
+        month=current_month,
         updated_at=balance_data.get('updated_at', datetime.now())
     )
 
     session.add(new_balance)
     session.commit()
     session.close()
+
+
+def get_goals(db_engine):
+    with db_engine.connect() as connection:
+        result = connection.execute(select(Goal))
+        goals = {}
+        for row in result:
+            goals[row.category] = {
+                'needs': row.needs,
+                'wants': row.wants,
+                'saves': row.saves
+            }
+        return goals
+
+from datetime import datetime
+
+def save_goals(db_engine, goals):
+    Session = sessionmaker(bind=db_engine)
+    session = Session()
+
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+    updated_at = datetime.now()
+
+    for category, goal_data in goals.items():
+        goal = Goal(
+            month=current_month,
+            year=current_year,
+            updated_at=updated_at,
+            needs=goal_data['needs'],
+            wants=goal_data['wants'],
+            saves=goal_data['saves']
+        )
+        session.add(goal)
+
+    session.commit()
+    session.close()
+
+
+def calculate_forecast(db_engine):
+    goals = get_goals(db_engine)
+    total_goal_amount = sum(goal['needs'] + goal['wants'] + goal['saves'] for goal in goals.values())
+
+    transactions = get_current_month_transactions(db_engine)
+
+    forecast = {}
+
+    for category, goal_values in goals.items():
+        category_transactions = [t for t in transactions if t.category == category]
+        category_expenses = sum([t.amount for t in category_transactions if t.type == 'D'])
+
+        forecast_amount = {
+            'needs': goal_values['needs'] - category_expenses,
+            'wants': goal_values['wants'] - category_expenses,
+            'saves': goal_values['saves'] - category_expenses
+        }
+
+        forecast[category] = forecast_amount
+
+    return forecast
+
+
+
+
+
+
 
 
 # Developer Mode
