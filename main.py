@@ -115,6 +115,7 @@ try:
                     "description": input("What is the description?  "),
                     "amount": float(input("What is the amount? ")),
                     "type": "D",
+                    "category": input("In which category is it for? (e.g. rent, food, gas...)  "),
                     "is_debited": False,
                     "is_credited": False,
                 }
@@ -130,6 +131,7 @@ try:
                     "transaction_date": datetime.now(),
                     "description": input("What is the description? "),
                     "amount": float(input("What is the amount? ")),
+                    "category": input("In which category is it for? (e.g. rent, food, gas...)  "),
                     "type": "R",
                     "is_debited": False,
                     "is_credited": False

@@ -102,6 +102,7 @@ def create_transaction(db_connection, transaction_data):
         description=transaction_data.get('description', ""),
         amount=transaction_data.get('amount', 0),
         type=transaction_data.get('type', ""),
+        category=transaction_data.get('category', ""),
         is_debited=transaction_data.get('is_debited', False),
         is_credited=transaction_data.get('is_credited', False)
     )
