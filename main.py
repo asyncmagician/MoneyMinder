@@ -251,10 +251,17 @@ try:
                 create_balance(db_engine, transaction_data)
                 print(f"{Fore.GREEN}➪ The balance has been successfully updated.{Style.RESET_ALL}")
             elif choice == "9":
+                existing_goals = get_goals(db_engine)
+
+                if existing_goals:
+                    print("Goals for the current month already exist. Do you want to update them? (y/N)")
+                    choice = input()
+                    if choice.lower() != 'y':
+                        print("Goals have not been updated.")
+                        continue
+
                 salary = float(input("What is your monthly salary? "))
-
                 goals = {}
-
                 percentage_needs = float(input("Enter the percentage goal for needs: "))
                 percentage_wants = float(input("Enter the percentage goal for wants: "))
                 percentage_saves = float(input("Enter the percentage goal for saves: "))

@@ -1,6 +1,6 @@
 from db.models import Transaction, Balance, Goal
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy import extract, desc, func, text, select, delete, insert
+from sqlalchemy import extract, desc, func, text, select, delete, insert, and_
 from datetime import datetime, timedelta
 
 def get_all_transactions(db_connection):
@@ -133,12 +133,13 @@ def get_goals(db_engine):
         result = connection.execute(select(Goal))
         goals = {}
         for row in result:
-            goals[row.category] = {
+            goals[row.month] = {
                 'needs': row.needs,
                 'wants': row.wants,
                 'saves': row.saves
             }
         return goals
+
 
 from datetime import datetime
 
@@ -148,21 +149,30 @@ def save_goals(db_engine, goals):
 
     current_year = datetime.now().year
     current_month = datetime.now().month
-    updated_at = datetime.now()
+    
+    existing_goals = session.query(Goal).filter(and_(Goal.month == current_month, Goal.year == current_year)).all()
 
-    for category, goal_data in goals.items():
+    if existing_goals:
+        for goal in existing_goals:
+            goal.needs = goals['default']['needs']
+            goal.wants = goals['default']['wants']
+            goal.saves = goals['default']['saves']
+            goal.updated_at = datetime.now()
+    else:
         goal = Goal(
             month=current_month,
             year=current_year,
-            updated_at=updated_at,
-            needs=goal_data['needs'],
-            wants=goal_data['wants'],
-            saves=goal_data['saves']
+            updated_at=datetime.now(),
+            needs=goals['default']['needs'],
+            wants=goals['default']['wants'],
+            saves=goals['default']['saves']
         )
         session.add(goal)
 
     session.commit()
     session.close()
+
+
 
 
 def calculate_forecast(db_engine):
