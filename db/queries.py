@@ -1,6 +1,6 @@
 from db.models import Transaction, Balance
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import extract, desc, func, text, select
+from sqlalchemy import extract, desc, func, text, select, delete
 from datetime import datetime, timedelta
 
 def get_all_transactions(db_connection):
@@ -125,3 +125,14 @@ def create_balance(db_connection, balance_data):
     session.add(new_balance)
     session.commit()
     session.close()
+
+
+# Developer Mode
+
+def delete_all_data(db_engine):
+    with db_engine.begin() as connection:
+        delete_stmt = delete(Transaction)
+        connection.execute(delete_stmt)
+
+        delete_stmt = delete(Balance)
+        connection.execute(delete_stmt)
