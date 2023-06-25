@@ -282,6 +282,12 @@ def create_fixed_expense(db_connection, income_id, description, amount):
 
 def delete_all_data(db_engine):
     with db_engine.begin() as connection:
+        delete_stmt = delete(FixedExpense)
+        connection.execute(delete_stmt)
+
+        delete_stmt = delete(Income)
+        connection.execute(delete_stmt)
+
         delete_stmt = delete(Transaction)
         connection.execute(delete_stmt)
 
