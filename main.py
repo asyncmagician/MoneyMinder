@@ -43,16 +43,22 @@ try:
         print("\n" + "-" * 50)
         print("\nWhat do you want to do?")
         print("")
-        print("[1] Check my balance")
-        print("[2] Add an expense")
-        print("[3] Add a refund")
-        print("[4] Update status")
-        print("[5] View balance history for a specific month")
-        print("[6] View current month's expenses")
-        print("[7] View expenses for a specific month")
-        print("[8] Update balance")
+        
+        if dev_mode:
+            print("[disable_dev] Disable developer mode")
+            print("[delete_all] Delete all data")
+        else:
+            print("[1] Check my balance")
+            print("[2] Add an expense")
+            print("[3] Add a refund")
+            print("[4] Update status")
+            print("[5] View balance history for a specific month")
+            print("[6] View current month's expenses")
+            print("[7] View expenses for a specific month")
+            print("[8] Update balance")
+        
         print("[0] Quit")
-        print("-" * 50 + "\n")        
+        print("-" * 50 + "\n")       
 
         choice = input("Please, select a number:  ")
 
@@ -61,7 +67,7 @@ try:
             dev_mode = True
             print(f"{Fore.MAGENTA}Developer mode enabled. \nWith great powers, comes great responsibility, use it with cautious. {Style.RESET_ALL}")
             continue
-        
+
         if not dev_mode:
             if choice == "1":
                 most_recent_balance_update = get_most_recent_balance_update(db_engine)
@@ -233,6 +239,11 @@ try:
                     print(f"{Fore.RED}All data has been deleted. \nPlease run the application, again.{Style.RESET_ALL}")
                     db_engine.dispose()
                     break
+            elif choice == "disable_dev":
+                dev_mode = False
+            elif choice == "0":
+                db_engine.dispose()
+                break
             else:
                 print(f"{Fore.RED}Invalid choice. Please try again.{Style.RESET_ALL}")
 except KeyboardInterrupt:
