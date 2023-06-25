@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 import git
 import calendar
+import emoji
 
 load_dotenv()  
 
@@ -259,17 +260,17 @@ try:
                 goals_exist = bool(existing_goals)
 
                 if goals_exist:
-                    print(f"{Fore.BLUE}Goals for the current month: {Style.RESET_ALL}")
+                    print(f"{Fore.BLUE}This is your goals for the current month {Style.RESET_ALL}")
                     for month, goal in existing_goals.items():
                         month_name = calendar.month_name[month]
-                        print(f"- Month: {month_name}")
-                        print(f"  - Needs: {goal['needs']}€")
-                        print(f"  - Wants: {goal['wants']}€")
-                        print(f"  - Saves: {goal['saves']}€")
+                        print(f"{emoji.emojize(':calendar: Month:')} {month_name}")
+                        print(f"  {emoji.emojize(':house: Needs:')} {goal['needs']}€")
+                        print(f"  {emoji.emojize(':red_heart:  Wants:')} {goal['wants']}€")
+                        print(f"  {emoji.emojize(':money_bag: Saves:')} {goal['saves']}€")
 
                     print()
 
-                    update_choice = input("Goals for the current month already exist. Do you want to update them? (y/N) ")
+                    update_choice = input(f"{Fore.YELLOW}Goals for the current month already exist. Do you want to update them? (y/N){Style.RESET_ALL} ")
                     if update_choice.lower() == 'y':
                         salary = float(input("What is your monthly salary? "))
                         goals = {}
@@ -299,9 +300,9 @@ try:
                     if create_new_goals.lower() == 'y':
                         salary = float(input("What is your monthly salary? "))
                         goals = {}
-                        percentage_needs = float(input("Enter the percentage goal for needs: "))
-                        percentage_wants = float(input("Enter the percentage goal for wants: "))
-                        percentage_saves = float(input("Enter the percentage goal for saves: "))
+                        percentage_needs = float(input("In percentage, what's your main goal for all your needs? (e.g. rent, insurances..) "))
+                        percentage_wants = float(input("In percentage, what's your main goal for all your wants? (e.g. restaurant, theater..) "))
+                        percentage_saves = float(input("In percentage, what's your main goal for all the money you want to save? "))
 
                         needs = salary * (percentage_needs / 100)
                         wants = salary * (percentage_wants / 100)
