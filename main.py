@@ -34,20 +34,25 @@ else:
 current_year = datetime.now().year
 
 if not check_balance_exists(db_engine):
-    print("\n" + "#" * 50)
-    print(f"{Fore.CYAN}Welcome to MoneyMinder!{Style.RESET_ALL}")
-    print(f"Version: {version} | ©BARTOLOMUCCI Antony - {current_year}")
-    print("#" * 50 + "\n")  
-    initial_balance = float(input("In order to start, please provide the current account balance: "))
-    balance_data = {
-        "account_balance": initial_balance,
-        "updated_at": datetime.now()
-    }
-    create_balance(db_engine, balance_data)
+    try:
+        print("\n" + "#" * 50)
+        print(f"{Fore.CYAN}Welcome to MoneyMinder!{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Version: {version} | ©BARTOLOMUCCI Antony ({current_year}){Style.RESET_ALL}")
+        print("#" * 50 + "\n")  
+        initial_balance = float(input("In order to start, please provide the current account balance: "))
+        balance_data = {
+            "account_balance": initial_balance,
+            "updated_at": datetime.now()
+        }
+        create_balance(db_engine, balance_data)
+    except KeyboardInterrupt:
+        print(f"{Fore.RED}\nProgram interrupted by user. Exiting...")
+        db_engine.dispose()
+        exit(0)
 else:
     print("\n" + "#" * 50)
     print(f"{Fore.CYAN}Welcome back to MoneyMinder!{Style.RESET_ALL}")
-    print(f"Version: {version} |  ©BARTOLOMUCCI Antony - {current_year}")
+    print(f"{Fore.CYAN}Version: {version} | ©BARTOLOMUCCI Antony ({current_year}){Style.RESET_ALL}")
     print("#" * 50 + "\n")  
 
 dev_mode = False
@@ -71,6 +76,7 @@ try:
             print("[6] View current month's expenses")
             print("[7] View expenses for a specific month")
             print("[8] Update balance")
+            print(f"{Fore.RED}[devmode] Enable Developer Mode{Style.RESET_ALL}")
         
         print("[0] Quit")
         print("-" * 50 + "\n")       
