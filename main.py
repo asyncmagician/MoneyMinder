@@ -101,7 +101,7 @@ try:
 
                     if balance < 0:
                         color = Fore.RED
-                    elif 0 <= balance < 500:
+                    elif 0 <= balance <= 500:
                         color = Fore.YELLOW
                     elif balance > 500:
                         color = Fore.GREEN
@@ -192,7 +192,7 @@ try:
 
                                 if balance < 0:
                                     color = Fore.RED
-                                elif 0 <= balance < 500:
+                                elif 0 <= balance <= 500:
                                     color = Fore.YELLOW
                                 elif balance > 500:
                                     color = Fore.GREEN
@@ -252,13 +252,17 @@ try:
                 print(f"{Fore.GREEN}➪ The balance has been successfully updated.{Style.RESET_ALL}")
             elif choice == "9":
                 existing_goals = get_goals(db_engine)
+                goals_exist = bool(existing_goals)
 
-                if existing_goals:
-                    print("Goals for the current month already exist. Do you want to update them? (y/N)")
+                if goals_exist:
+                    print(f"{Fore.BLUE}Goals for the current month already exist. Do you want to update them? (y/N){Style.RESET_ALL}")
                     choice = input()
                     if choice.lower() != 'y':
-                        print("Goals have not been updated.")
+                        print(f"{Fore.RED}Goals have not been updated.{Style.RESET_ALL}")
                         continue
+
+                if not goals_exist:
+                    print(f"{Fore.RED}No goals have been detected in the database.{Style.RESET_ALL}")
 
                 salary = float(input("What is your monthly salary? "))
                 goals = {}
@@ -278,7 +282,7 @@ try:
 
                 save_goals(db_engine, goals)
 
-                print("Goals have been set successfully.")
+                print(f"{Fore.GREEN}Goals have been set successfully.{Style.RESET_ALL}")
             elif choice == "0":
                 db_engine.dispose()
                 break
