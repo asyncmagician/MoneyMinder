@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import extract, desc, func, text, select, delete, insert, and_
 from datetime import datetime, timedelta
 
+# Function to retrieve all transactions from the database
 def get_all_transactions(db_connection):
     Session = sessionmaker(bind=db_connection)
     session = Session()
@@ -13,6 +14,7 @@ def get_all_transactions(db_connection):
 
     return transactions
 
+# Function to check if a balance exists in the database
 def check_balance_exists(db_engine):
     connection = db_engine.connect()
     result = connection.execute(select(func.count()).select_from(Balance))
@@ -20,7 +22,7 @@ def check_balance_exists(db_engine):
     connection.close()
     return row_count > 0
 
-
+# Function to get expenses for a specific month and year
 def get_expenses_for_month(session, month, year):
     expenses = session.query(Transaction).filter(
         extract('month', Transaction.transaction_date) == month,
@@ -30,7 +32,7 @@ def get_expenses_for_month(session, month, year):
 
     return expenses
 
-
+# Function to get the history of balance updates for a specific month and year
 def get_history_balance_updates(session, month, year):
     history_balance_updates = session.query(Balance).filter(
         extract('month', Balance.updated_at) == month,
@@ -39,6 +41,7 @@ def get_history_balance_updates(session, month, year):
 
     return history_balance_updates
 
+# Function to get the transactions for the current month
 def get_current_month_transactions(db_engine):
     today = datetime.today()
     start_date = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -52,6 +55,7 @@ def get_current_month_transactions(db_engine):
                                     {"start_date": start_date, "end_date": end_date})
         return result.fetchall()
 
+# Function to update the status of a transaction (is_debited or is_credited)
 def update_transaction_status(db_engine, transaction_id, transaction_type):
     with db_engine.connect() as connection:
         transaction = connection.execute(text("SELECT * FROM transactions WHERE id = :transaction_id"),
@@ -79,6 +83,7 @@ def update_transaction_status(db_engine, transaction_id, transaction_type):
         
         connection.commit()
 
+# Function to get the most recent balance update
 def get_most_recent_balance_update(db_connection):
     Session = sessionmaker(bind=db_connection)
     session = Session()
@@ -93,6 +98,7 @@ def get_most_recent_balance_update(db_connection):
 
     return most_recent_update
 
+# Function to create a new transaction
 def create_transaction(db_connection, transaction_data):
     Session = sessionmaker(bind=db_connection)
     session = Session()
@@ -111,6 +117,7 @@ def create_transaction(db_connection, transaction_data):
     session.commit()
     session.close()
 
+# Function to create a new balance entry
 def create_balance(db_connection, balance_data):
     Session = sessionmaker(bind=db_connection)
     session = Session()
@@ -127,7 +134,7 @@ def create_balance(db_connection, balance_data):
     session.commit()
     session.close()
 
-
+# Function to get the goals from the database
 def get_goals(db_engine):
     with db_engine.connect() as connection:
         result = connection.execute(select(Goal))
@@ -141,8 +148,7 @@ def get_goals(db_engine):
         return goals
 
 
-from datetime import datetime
-
+# Function to save the goals to the database
 def save_goals(db_engine, goals):
     Session = sessionmaker(bind=db_engine)
     session = Session()
@@ -172,7 +178,7 @@ def save_goals(db_engine, goals):
     session.commit()
     session.close()
 
-
+# Function to calculate the forecast
 def calculate_forecast(db_engine):
     fixed_expenses = get_fixed_expenses(db_engine)
     total_fixed_expenses = sum(expense.amount for expense in fixed_expenses)
@@ -200,6 +206,7 @@ def calculate_forecast(db_engine):
 
     return forecast
 
+# Function to create a new income entry
 def create_income(db_connection, income_amount):
     Session = sessionmaker(bind=db_connection)
     session = Session()
@@ -218,6 +225,7 @@ def create_income(db_connection, income_amount):
     session.commit()
     session.close()
 
+# Function to get the fixed expenses from the database
 def get_fixed_expenses(db_engine):
     Session = sessionmaker(bind=db_engine)
     session = Session()
@@ -228,12 +236,14 @@ def get_fixed_expenses(db_engine):
 
     return fixed_expenses
 
+# Function to get the current month's income from the database
 def get_current_month_income(db_engine):
     with db_engine.connect() as connection:
         result = connection.execute(text("SELECT * FROM income WHERE month = :month AND year = :year"),
                                     {"month": datetime.now().month, "year": datetime.now().year})
         return result.fetchone()
 
+# Function to add fixed expenses
 def add_fixed_expenses(db_engine):
     current_month_income = get_current_month_income(db_engine)
     
@@ -261,7 +271,7 @@ def add_fixed_expenses(db_engine):
     
     return True
 
-
+# Function to create a new fixed expense
 def create_fixed_expense(db_connection, income_id, description, amount):
     Session = sessionmaker(bind=db_connection)
     session = Session()
@@ -280,6 +290,7 @@ def create_fixed_expense(db_connection, income_id, description, amount):
 
 # Developer Mode
 
+# Function to delete all data from the database 
 def delete_all_data(db_engine):
     with db_engine.begin() as connection:
         delete_stmt = delete(FixedExpense)

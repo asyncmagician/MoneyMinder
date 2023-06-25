@@ -12,18 +12,21 @@ import git
 import calendar
 import emoji
 
+# Load environment variables from .env file
 load_dotenv()  
 
-
+# Get database credentials from environment variables
 host = os.getenv('DB_HOST')
 user = os.getenv('DB_USER')
 password = os.getenv('DB_PASSWORD')
 database = os.getenv('DB_DATABASE')
 
+# Create database engine and tables
 db_engine = create_db_engine(host, user, password, database)
 Base.metadata.create_all(db_engine)
 Session = sessionmaker(bind=db_engine)
 
+# Get the latest version tag from the git repository
 repo = git.Repo(search_parent_directories=True)
 tags = repo.tags
 
@@ -33,9 +36,10 @@ if tags and len(tags) >= 2:
 else:
     version = "Unknown"
 
-
+# Get the current year
 current_year = datetime.now().year
 
+# Check if balance exists in the database otherwise we won't let the user access the GUI yet
 if not check_balance_exists(db_engine):
     try:
         print("\n" + "#" * 50)
@@ -43,11 +47,14 @@ if not check_balance_exists(db_engine):
         print(f"{Fore.CYAN}Version: {version} | ©BARTOLOMUCCI Antony ({current_year}){Style.RESET_ALL}")
         print("#" * 50 + "\n")  
         initial_balance = float(input("In order to start, please provide the current account balance: "))
+
+        # Create the initial balance entry in the database
         balance_data = {
             "account_balance": initial_balance,
             "updated_at": datetime.now()
         }
         create_balance(db_engine, balance_data)
+    # If the user is exiting with CTRL+C we intercept this interruption
     except KeyboardInterrupt:
         print(f"{Fore.RED}\nProgram interrupted by user. Exiting...")
         db_engine.dispose()
@@ -71,6 +78,7 @@ try:
             print("[disable_dev] Disable developer mode")
             print("[delete_all] Delete all data")
         else:
+            # Main menu options for regular mode
             print("[1] Check my balance")
             print("[2] Add an expense")
             print("[3] Add a refund")
@@ -362,6 +370,7 @@ try:
                 break
             else:
                 print(f"{Fore.RED}Invalid choice. Please try again.{Style.RESET_ALL}")
+# If the user is exiting with CTRL+C we intercept this interruption
 except KeyboardInterrupt:
     print(f"{Fore.RED}\nProgram interrupted by user. Exiting...")
 finally:
