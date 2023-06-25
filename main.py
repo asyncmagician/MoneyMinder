@@ -9,6 +9,7 @@ from colorama import Fore, Style
 from sqlalchemy.orm import sessionmaker
 import os
 import git
+import calendar
 
 load_dotenv()  
 
@@ -258,34 +259,44 @@ try:
                 goals_exist = bool(existing_goals)
 
                 if goals_exist:
-                    print(f"{Fore.BLUE}Goals for the current month already exist. Do you want to update them? (y/N){Style.RESET_ALL}")
-                    choice = input()
-                    if choice.lower() != 'y':
-                        print(f"{Fore.RED}Goals have not been updated.{Style.RESET_ALL}")
-                        continue
+                    print(f"{Fore.BLUE}Goals for the current month: {Style.RESET_ALL}")
+                    for month, goal in existing_goals.items():
+                        month_name = calendar.month_name[month]
+                        print(f"- Month: {month_name}")
+                        print(f"  - Needs: {goal['needs']}€")
+                        print(f"  - Wants: {goal['wants']}€")
+                        print(f"  - Saves: {goal['saves']}€")
 
-                if not goals_exist:
+                    print()
+
+                    update_choice = input("Goals for the current month already exist. Do you want to update them? (y/N) ")
+                    if update_choice.lower() == 'y':
+                        salary = float(input("What is your monthly salary? "))
+                        goals = {}
+                        percentage_needs = float(input("Enter the percentage goal for needs: "))
+                        percentage_wants = float(input("Enter the percentage goal for wants: "))
+                        percentage_saves = float(input("Enter the percentage goal for saves: "))
+
+                        needs = salary * (percentage_needs / 100)
+                        wants = salary * (percentage_wants / 100)
+                        saves = salary * (percentage_saves / 100)
+
+                        goals['default'] = {
+                            'needs': needs,
+                            'wants': wants,
+                            'saves': saves
+                        }
+
+                        save_goals(db_engine, goals)
+
+                        print(f"{Fore.GREEN}Goals have been updated successfully.{Style.RESET_ALL}")
+                    else:
+                        print(f"{Fore.RED}Goals have not been updated.{Style.RESET_ALL}")
+
+                else:
                     print(f"{Fore.RED}No goals have been detected in the database.{Style.RESET_ALL}")
 
-                salary = float(input("What is your monthly salary? "))
-                goals = {}
-                percentage_needs = float(input("Enter the percentage goal for needs: "))
-                percentage_wants = float(input("Enter the percentage goal for wants: "))
-                percentage_saves = float(input("Enter the percentage goal for saves: "))
-
-                needs = salary * (percentage_needs / 100)
-                wants = salary * (percentage_wants / 100)
-                saves = salary * (percentage_saves / 100)
-
-                goals['default'] = {
-                    'needs': needs,
-                    'wants': wants,
-                    'saves': saves
-                }
-
-                save_goals(db_engine, goals)
-
-                print(f"{Fore.GREEN}Goals have been set successfully.{Style.RESET_ALL}")
+                print()
             elif choice == "10":
                 income_amount = float(input("Enter your monthly income amount: "))
                 create_income(db_engine, income_amount)
