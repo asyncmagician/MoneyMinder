@@ -357,7 +357,7 @@ try:
                 print(f"{Fore.RED}➪ Invalid choices. Please try again.{Style.RESET_ALL}")
         else:
             if choice == "delete_all":
-                confirm = input("Are you sure you want to delete all data? This action cannot be undone. (y/N) ")
+                confirm = input(f"{Fore.RED}Are you sure you want to delete all data? This action cannot be undone. (y/N){Style.RESET_ALL} ")
                 if confirm.lower() == "y":
                     delete_all_data(db_engine)
                     print(f"{Fore.RED}All data has been deleted. \nPlease run the application, again.{Style.RESET_ALL}")
