@@ -8,6 +8,7 @@ from utils.title import print_money_minder
 from colorama import Fore, Style
 from sqlalchemy.orm import sessionmaker
 import os
+import git
 
 load_dotenv()  
 
@@ -21,9 +22,21 @@ db_engine = create_db_engine(host, user, password, database)
 Base.metadata.create_all(db_engine)
 Session = sessionmaker(bind=db_engine)
 
+repo = git.Repo(search_parent_directories=True)
+tags = repo.tags
+
+if tags:
+    latest_tag = tags[-1]
+    version = latest_tag.name
+else:
+    version = "Unknown"
+
+current_year = datetime.now().year
+
 if not check_balance_exists(db_engine):
     print("\n" + "#" * 50)
     print(f"{Fore.CYAN}Welcome to MoneyMinder!{Style.RESET_ALL}")
+    print(f"Version: {version} | ©BARTOLOMUCCI Antony - {current_year}")
     print("#" * 50 + "\n")  
     initial_balance = float(input("In order to start, please provide the current account balance: "))
     balance_data = {
@@ -34,9 +47,11 @@ if not check_balance_exists(db_engine):
 else:
     print("\n" + "#" * 50)
     print(f"{Fore.CYAN}Welcome back to MoneyMinder!{Style.RESET_ALL}")
+    print(f"Version: {version} |  ©BARTOLOMUCCI Antony - {current_year}")
     print("#" * 50 + "\n")  
 
 dev_mode = False
+
 
 try:
     while True:
