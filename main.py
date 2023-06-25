@@ -108,22 +108,29 @@ try:
         elif choice == "4":
             transactions = get_current_month_transactions(db_engine)
             if transactions:
-                for transaction in transactions:
-                    type : str = "None"
-                    if(transaction.type == "D"):
-                        type: str = "This is an expense"
-                    elif(transaction.type == "R"):
-                        type: str = "This is a refund"
+                eligible_transactions = [t for t in transactions if t.is_credited == 0 and t.is_debited == 0]
+                if eligible_transactions:
+                    for transaction in eligible_transactions:
+                        type_str = "None"
+                        if transaction.type == "D":
+                            type_str = "This is an expense"
+                        elif transaction.type == "R":
+                            type_str = "This is a refund"
+                        print()
+                        print(f"The identifier is {Fore.YELLOW}{transaction.id}{Style.RESET_ALL} \nThe description is '{transaction.description}' \nThe amount is {Fore.YELLOW}{transaction.amount}€{Style.RESET_ALL} \n{type_str}")
+                        print()
+                    transaction_id = int(input("Please, enter the ID of the transaction you want to update: "))
+                    transaction_to_update = next((t for t in eligible_transactions if t.id == transaction_id), None)
+                    if transaction_to_update:
+                        update_transaction_status(db_engine, transaction_id, transaction_to_update.type)
+                        print()
+                        print(f"{Fore.GREEN}➪ The transaction status has been successfully updated.{Style.RESET_ALL}")
+                    else:
+                        print()
+                        print(f"{Fore.RED}➪ Invalid transaction ID. Please try again.{Style.RESET_ALL}")
+                else:
                     print()
-                    print(f"The identifier is {Fore.YELLOW}{transaction.id}{Style.RESET_ALL} \nThe description is '{transaction.description}' \nThe amount is {Fore.YELLOW}{transaction.amount}€{Style.RESET_ALL} \n{type}")
-                    print()
-                transaction_id = int(input("Please, enter the ID of the transaction you want to update: "))
-                for transaction in transactions:
-                    if transaction.id == transaction_id:
-                        transaction_type = transaction.type
-                update_transaction_status(db_engine, transaction_id, transaction_type)
-                print()
-                print(f"{Fore.GREEN}➪ The transaction status has been successfully updated.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}➪ No eligible transactions found for the current month.{Style.RESET_ALL}")
             else:
                 print()
                 print(f"{Fore.RED}➪ No transactions found for the current month.{Style.RESET_ALL}")
