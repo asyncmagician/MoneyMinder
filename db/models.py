@@ -11,6 +11,7 @@ class Transaction(Base):
     description = Column(String(255))
     amount = Column(Float)
     type = Column(String(50))
+    category = Column(String(255))
     is_debited = Column(Boolean)
     is_credited = Column(Boolean)
 
