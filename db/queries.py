@@ -197,13 +197,6 @@ def calculate_forecast(db_engine):
 
     return forecast
 
-
-
-
-
-
-
-
 # Developer Mode
 
 def delete_all_data(db_engine):
@@ -212,4 +205,7 @@ def delete_all_data(db_engine):
         connection.execute(delete_stmt)
 
         delete_stmt = delete(Balance)
+        connection.execute(delete_stmt)
+
+        delete_stmt = delete(Goal)
         connection.execute(delete_stmt)
