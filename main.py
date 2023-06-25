@@ -295,6 +295,30 @@ try:
 
                 else:
                     print(f"{Fore.RED}No goals have been detected in the database.{Style.RESET_ALL}")
+                    create_new_goals = input("Do you want to create new goals for the current month? (y/N) ")
+                    if create_new_goals.lower() == 'y':
+                        salary = float(input("What is your monthly salary? "))
+                        goals = {}
+                        percentage_needs = float(input("Enter the percentage goal for needs: "))
+                        percentage_wants = float(input("Enter the percentage goal for wants: "))
+                        percentage_saves = float(input("Enter the percentage goal for saves: "))
+
+                        needs = salary * (percentage_needs / 100)
+                        wants = salary * (percentage_wants / 100)
+                        saves = salary * (percentage_saves / 100)
+
+                        goals['default'] = {
+                            'needs': needs,
+                            'wants': wants,
+                            'saves': saves
+                        }
+
+                        save_goals(db_engine, goals)
+
+                        print(f"{Fore.GREEN}New goals have been created successfully.{Style.RESET_ALL}")
+
+                    else:
+                        print(f"{Fore.YELLOW}No goals have been created.{Style.RESET_ALL}")
 
                 print()
             elif choice == "10":
