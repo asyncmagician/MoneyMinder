@@ -21,3 +21,13 @@ class Balance(Base):
     account_balance = Column(Float)
     month = Column(Integer)
     updated_at = Column(DateTime)
+
+class Goal(Base):
+    __tablename__ = 'goals'
+
+    id = Column(Integer, primary_key=True)
+    percentage = Column(String(50))
+    category = Column(String(255))
+
+    def __repr__(self):
+        return f"<Goal(id={self.id}, percentage={self.percentage}, category={self.category})>"
